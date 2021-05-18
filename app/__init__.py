@@ -12,8 +12,9 @@ def main():
     products = [
         Product("L03A", None, UrlsCollecion(
             "https://www.probikeshop.fr/plaquettes-resine-shimano-l-2a/115933.html", None)),
-        Product("CS-R8000-11.30", "(.*)11(.*)30(.*)", UrlsCollecion("https://www.probikeshop.fr/cassette-shimano-11v-ultegra-8000/139465.html",
-                "https://www.alltricks.fr/F-11911-cassettes/P-259868-cassette_shimano_ultegra_cs_r8000_11v"))
+        Product("CS-R8000-11.30", "(.*)11(.*)30(.*)", UrlsCollecion(
+            "https://www.probikeshop.fr/cassette-shimano-11v-ultegra-8000/139465.html",
+            "https://www.alltricks.fr/F-11911-cassettes/P-259868-cassette_shimano_ultegra_cs_r8000_11v"))
     ]
 
     logger.info("Scrapping Probikesop")
