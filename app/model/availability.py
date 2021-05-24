@@ -8,3 +8,4 @@ class Availability:
     site_name: str
     is_available: bool
     price: Optional[float]
+    url: str

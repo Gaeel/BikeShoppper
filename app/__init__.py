@@ -5,6 +5,11 @@ from app.scrapper.probikeshop.probikeshop_scrapper import ProbikeshopScrapper
 from app.model.product import Product
 
 from asyncio import get_event_loop, gather
+from textwrap import dedent
+from itertools import chain
+
+from app.utils.pushbullet_client import PushBulletClient
+from app.config.pushbullet import PUSHBULLET_TOKEN
 
 async def run():
     logger = configure_root_logger()
@@ -17,7 +22,20 @@ async def run():
             "https://www.alltricks.fr/F-11911-cassettes/P-259868-cassette_shimano_ultegra_cs_r8000_11v"))
     ]
     logger.info("Scrapper started")
-    result = [*await gather(ProbikeshopScrapper().scrape(products), AlltricksScrapper().scrape(products))]
+    result = await gather(ProbikeshopScrapper().scrape(products), AlltricksScrapper().scrape(products))
+    flat_res = list(chain(*result))
+
+    pb = PushBulletClient(PUSHBULLET_TOKEN)
+    for availability in flat_res:
+        if availability.is_available:
+            opt_msg = f"with option like {availability.product_option}" if availability.product_option else ""
+            message = dedent(f"""
+            Hey, {availability.product_name} {opt_msg} is now available on {availability.site_name} for {availability.price:.2f}€!
+            Order now at: {availability.url}
+            
+            Your humble servant, BikeShoper!
+            """)
+            pb.notify("A product is available!", message)
     print(result)
 
 def main():

@@ -40,7 +40,7 @@ class ProbikeshopScrapper(AbstractSrapper):
                 if not self.__check_url(product.urls.probikeshop_url):
                     result.append(
                         Availability(product.name, product.option,
-                                     self.site_name, None, None)
+                                     self.site_name, None, None, product.urls.probikeshop_url)
                     )
                     continue
 
@@ -79,6 +79,6 @@ class ProbikeshopScrapper(AbstractSrapper):
                         price += overcost
 
                 result.append(Availability(
-                    product.name, product.option, self.site_name, avail, price))
+                    product.name, product.option, self.site_name, avail, price, product.urls.probikeshop_url))
 
         return result

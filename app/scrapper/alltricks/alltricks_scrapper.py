@@ -39,7 +39,7 @@ class AlltricksScrapper(AbstractSrapper):
                 if not self.__check_url(product.urls.alltricks_url):
                     result.append(
                         Availability(product.name, product.option,
-                                     self.site_name, None, None)
+                                     self.site_name, None, None, product.urls.alltricks_url)
                     )
                     continue
 
@@ -73,7 +73,8 @@ class AlltricksScrapper(AbstractSrapper):
                                     self.site_name,
                                     avail not in [
                                         "Epuisé", "Retrait rapide en magasin"],
-                                    self.parse_price(price)
+                                    self.parse_price(price),
+                                    product.urls.alltricks_url
                                 )
                             )
 
@@ -84,7 +85,8 @@ class AlltricksScrapper(AbstractSrapper):
                                 product.option,
                                 self.site_name,
                                 False,
-                                False
+                                False,
+                                product.urls.alltricks_url
                             )
                         )
 
@@ -98,7 +100,8 @@ class AlltricksScrapper(AbstractSrapper):
                                 product.option,
                                 self.site_name,
                                 True,
-                                self.parse_price(price)
+                                self.parse_price(price),
+                                product.urls.alltricks_url
                             )
                         )
                     else:
@@ -108,7 +111,8 @@ class AlltricksScrapper(AbstractSrapper):
                                 product.option,
                                 self.site_name,
                                 False,
-                                None
+                                None,
+                                product.urls.alltricks_url
                             )
                         )
 
