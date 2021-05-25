@@ -140,3 +140,4 @@ cython_debug/
 .vscode
 
 app/config/pushbullet.py
+.statedb.db

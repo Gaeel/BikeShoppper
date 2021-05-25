@@ -7,6 +7,9 @@ class PushBulletClient:
         self.session.headers.update(**self.session.headers, **{"Access-Token": token, "Content-Type": "application/json"})
         self.logger = getLogger()
 
+    def close(self):
+        self.session.close()
+        
     def notify(self, title: str, message: str, ):
         r = self.session.post(
             url='https://api.pushbullet.com/v2/pushes',
@@ -14,3 +17,4 @@ class PushBulletClient:
         )
         r.raise_for_status()
         return r.json()
+    

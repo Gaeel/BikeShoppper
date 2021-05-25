@@ -1,15 +1,20 @@
+from sqlalchemy.orm import sessionmaker
+from app.schema.product_availabity import ProductAvailability
 from app.scrapper.alltricks.alltricks_scrapper import AlltricksScrapper
 from app.utils.logger import configure_root_logger
 from app.model.urls_collection import UrlsCollecion
 from app.scrapper.probikeshop.probikeshop_scrapper import ProbikeshopScrapper
 from app.model.product import Product
+from app.utils.pushbullet_client import PushBulletClient
+from app.config.pushbullet import PUSHBULLET_TOKEN
+from app.config.database import DATABASE_URI
 
 from asyncio import get_event_loop, gather
 from textwrap import dedent
 from itertools import chain
+from sqlalchemy import create_engine
+from datetime import datetime
 
-from app.utils.pushbullet_client import PushBulletClient
-from app.config.pushbullet import PUSHBULLET_TOKEN
 
 async def run():
     logger = configure_root_logger()
@@ -25,9 +30,29 @@ async def run():
     result = await gather(ProbikeshopScrapper().scrape(products), AlltricksScrapper().scrape(products))
     flat_res = list(chain(*result))
 
+    engine = create_engine(DATABASE_URI)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
     pb = PushBulletClient(PUSHBULLET_TOKEN)
+
     for availability in flat_res:
         if availability.is_available:
+            this_product = session.query(ProductAvailability).filter_by(product_name=availability.product_name).order_by(ProductAvailability.timestamp).one()
+            print(this_product)
+            if not this_product:
+                session.add(
+                    ProductAvailability(
+                        product_name = availability.product_name,
+                        product_option = availability.product_option,
+                        site_name = availability.site_name,
+                        is_available = availability.is_available,
+                        price = availability.price,
+                        timestamp = datetime.now()
+                    )
+                )
+        
+
             opt_msg = f"with option like {availability.product_option}" if availability.product_option else ""
             message = dedent(f"""
             Hey, {availability.product_name} {opt_msg} is now available on {availability.site_name} for {availability.price:.2f}€!
@@ -36,6 +61,9 @@ async def run():
             Your humble servant, BikeShoper!
             """)
             pb.notify("A product is available!", message)
+
+    session.commit()
+    pb.close()
     print(result)
 
 def main():
